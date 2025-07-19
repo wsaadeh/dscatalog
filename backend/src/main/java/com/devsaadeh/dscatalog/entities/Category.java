@@ -5,24 +5,24 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Objects;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "tb_category")
 public class Category implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
     private String name;
 
     @Setter(AccessLevel.NONE)
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
-    private Instant createAt;
+    private Instant createdAt;
 
     @Setter(AccessLevel.NONE)
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
@@ -30,7 +30,7 @@ public class Category implements Serializable {
 
     @PrePersist
     public void prePersist(){
-        createAt = Instant.now();
+        createdAt = Instant.now();
     }
 
     @PreUpdate
