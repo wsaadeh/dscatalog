@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.time.Instant;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -36,5 +35,10 @@ public class Category implements Serializable {
     @PreUpdate
     public void preUpdate(){
         updateAt = Instant.now();
+    }
+
+    public Category(Long id, String name) {
+        this.id = id;
+        this.name = name;
     }
 }
