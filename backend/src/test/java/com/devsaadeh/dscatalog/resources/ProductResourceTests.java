@@ -154,7 +154,7 @@ public class ProductResourceTests {
     }
 
     @Test
-    public void insertShouldReturnProductDTOWhenIdExists() throws Exception{
+    public void insertShouldReturnProductDTOCreated() throws Exception{
         String jsonBody = objectMapper.writeValueAsString(productDTO);
 
         ResultActions resultActions =
