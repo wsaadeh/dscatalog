@@ -1,5 +1,6 @@
 package com.devsaadeh.dscatalog.services;
 
+import com.devsaadeh.dscatalog.dto.RoleDTO;
 import com.devsaadeh.dscatalog.dto.UserDTO;
 import com.devsaadeh.dscatalog.dto.UserInsertDTO;
 import com.devsaadeh.dscatalog.entities.Role;
@@ -13,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,55 +26,58 @@ import java.util.Optional;
 public class UserService {
 
     @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
     private UserRepository repository;
 
     @Autowired
     private RoleRepository roleRepository;
 
     @Transactional(readOnly = true)
-    public Page<UserDTO> findAllPaged(PageRequest pageRequest){
-        Page<User> userPage = repository.findAll(pageRequest);
-        return userPage.map(x-> new UserDTO(x));
+    public Page<UserDTO> findAllPaged(Pageable pageable) {
+        Page<User> userPage = repository.findAll(pageable);
+        return userPage.map(x -> new UserDTO(x));
     }
 
     @Transactional(readOnly = true)
-    public UserDTO findById(Long id){
+    public UserDTO findById(Long id) {
         Optional<User> obj = repository.findById(id);
         User entity = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found " + id));
         return new UserDTO(entity);
     }
 
     @Transactional
-    public UserDTO insert(UserInsertDTO dto){
+    public UserDTO insert(UserInsertDTO dto) {
         User entity = new User();
         copyDtoToEntity(dto, entity);
-        entity.setPassword(dto.getPassword());
+        entity.setPassword(passwordEncoder.encode(dto.getPassword()));
         entity = repository.save(entity);
         return new UserDTO(entity);
 
     }
 
     @Transactional
-    public UserDTO update(Long id, UserDTO dto){
+    public UserDTO update(Long id, UserDTO dto) {
         try {
             User entity = repository.getReferenceById(id);
-            copyDtoToEntity(dto,entity);
+            copyDtoToEntity(dto, entity);
             entity = repository.save(entity);
             return new UserDTO(entity);
-        }catch (EntityNotFoundException e){
+        } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Id not found " + id);
         }
 
     }
 
     @Transactional
-    public void delete(Long id){
+    public void delete(Long id) {
         try {
-            if (repository.existsById(id)){
+            if (!repository.existsById(id)) {
                 throw new ResourceNotFoundException("Id not found " + id);
             }
             repository.deleteById(id);
-        }catch (DataIntegrityViolationException e){
+        } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Integrity violation.");
         }
     }
@@ -83,9 +89,13 @@ public class UserService {
         //clear attribute
         entity.getRoles().clear();
         //add data from dto to entity
-        dto.getRoles().stream().map(x-> {
+        dto.getRoles().forEach(x-> {
             Role role = roleRepository.getReferenceById(x.getId());
-             return entity.getRoles().add(role);
+            entity.getRoles().add(role);
         });
+//        for (RoleDTO r: dto.getRoles()){
+//            Role role = roleRepository.getReferenceById(r.getId());
+//            entity.getRoles().add(role);
+//        }
     }
 }
