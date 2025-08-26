@@ -2,6 +2,7 @@ package com.devsaadeh.dscatalog.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -14,7 +15,7 @@ import java.util.Set;
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "tb_role")
-public class Role implements Serializable {
+public class Role implements GrantedAuthority {
     @EqualsAndHashCode.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

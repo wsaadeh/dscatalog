@@ -1,12 +1,8 @@
 package com.devsaadeh.dscatalog.services;
 
 import com.devsaadeh.dscatalog.dto.ProductDTO;
-import com.devsaadeh.dscatalog.dto.ProductDTO;
-import com.devsaadeh.dscatalog.entities.Category;
-import com.devsaadeh.dscatalog.entities.Product;
 import com.devsaadeh.dscatalog.entities.Product;
 import com.devsaadeh.dscatalog.repositories.CategoryRepository;
-import com.devsaadeh.dscatalog.repositories.ProductRepository;
 import com.devsaadeh.dscatalog.repositories.ProductRepository;
 import com.devsaadeh.dscatalog.services.exception.DatabaseException;
 import com.devsaadeh.dscatalog.services.exception.ResourceNotFoundException;
@@ -14,7 +10,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
