@@ -2,6 +2,7 @@ package com.devsaadeh.dscatalog.resources;
 
 
 import com.devsaadeh.dscatalog.dto.ProductDTO;
+import com.devsaadeh.dscatalog.projections.ProductProjection;
 import com.devsaadeh.dscatalog.services.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,19 +24,21 @@ public class ProductResource {
 
     @GetMapping
     public ResponseEntity<Page<ProductDTO>> findAll(
-        Pageable pageable
-    ){
-        return ResponseEntity.ok().body(service.findAllPaged(pageable));
+            @RequestParam(value = "name", defaultValue = "") String name,
+            @RequestParam(value = "categoryId", defaultValue = "0") String categoryId,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok().body(service.searchAllPaged(name,categoryId, pageable));
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<ProductDTO> findById(@PathVariable Long id){
+    public ResponseEntity<ProductDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
-    public ResponseEntity<ProductDTO> insert(@Valid @RequestBody ProductDTO dto){
+    public ResponseEntity<ProductDTO> insert(@Valid @RequestBody ProductDTO dto) {
         dto = service.insert(dto);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -47,8 +50,8 @@ public class ProductResource {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping(value = "/{id}")
-    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @Valid @RequestBody ProductDTO dto){
-        dto = service.update(id,dto);
+    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @Valid @RequestBody ProductDTO dto) {
+        dto = service.update(id, dto);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -59,7 +62,7 @@ public class ProductResource {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<ProductDTO> delete(@PathVariable Long id){
+    public ResponseEntity<ProductDTO> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

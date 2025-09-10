@@ -1,6 +1,7 @@
 package com.devsaadeh.dscatalog.entities;
 
 
+import com.devsaadeh.dscatalog.projections.IdProjection;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,7 +17,7 @@ import java.util.Set;
 @Entity
 @Table(name = "tb_product")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Product implements Serializable {
+public class Product implements IdProjection<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
