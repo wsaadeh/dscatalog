@@ -2,6 +2,7 @@ package com.devsaadeh.dscatalog.services;
 
 import com.devsaadeh.dscatalog.dto.AuthDTO;
 import com.devsaadeh.dscatalog.dto.EmailDTO;
+import com.devsaadeh.dscatalog.dto.NewPasswordDTO;
 import com.devsaadeh.dscatalog.entities.PasswordRecover;
 import com.devsaadeh.dscatalog.entities.User;
 import com.devsaadeh.dscatalog.repositories.PasswordRecoverRepository;
@@ -9,11 +10,18 @@ import com.devsaadeh.dscatalog.repositories.UserRepository;
 import com.devsaadeh.dscatalog.services.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,6 +32,9 @@ public class AuthService {
 
     @Value("${email.password-recover.uri}")
     private String recoverUri;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private UserRepository userRepository;
@@ -56,4 +67,29 @@ public class AuthService {
         EmailDTO emailDTO = new EmailDTO(dto.getEmail(), "Password Recover",body.toString());
         emailService.sendEmail(emailDTO);
     }
+
+    @Transactional
+    public void saveNewPassword( NewPasswordDTO body) {
+        List<PasswordRecover> result = passwordRecoverRepository.searchValidaTokens(body.getToken(), Instant.now());
+        if (result.isEmpty()){
+            throw new ResourceNotFoundException("Invalid token.");
+        }
+
+        User user = userRepository.findByEmail(result.getFirst().getEmail());
+        user.setPassword(passwordEncoder.encode(body.getPassword()));
+        userRepository.save(user);
+    }
+
+    protected User authenticated() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Jwt jwtPrincipal = (Jwt) authentication.getPrincipal();
+            String username = jwtPrincipal.getClaim("username");
+            return userRepository.findByEmail(username);
+        }
+        catch (Exception e) {
+            throw new UsernameNotFoundException("Invalid user");
+        }
+    }
+
 }

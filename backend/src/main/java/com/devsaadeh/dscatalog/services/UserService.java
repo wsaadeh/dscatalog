@@ -31,17 +31,25 @@ public class UserService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
     @Autowired
     private UserRepository repository;
 
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private AuthService authService;
+
     @Transactional(readOnly = true)
     public Page<UserDTO> findAllPaged(Pageable pageable) {
         Page<User> userPage = repository.findAll(pageable);
         return userPage.map(x -> new UserDTO(x));
+    }
+
+    @Transactional(readOnly = true)
+    public UserDTO findMe() {
+        User entity = authService.authenticated();
+        return new UserDTO(entity);
     }
 
     @Transactional(readOnly = true)
