@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;
+import java.util.Date;
 
 @Service
 public class S3Service {
@@ -33,7 +34,8 @@ public class S3Service {
         try {
             String originalName = file.getOriginalFilename();
             String extension = FilenameUtils.getExtension(originalName);
-            String fileName = FilenameUtils.getName(originalName) + "_" + Instant.now() + "." + extension;
+            //String fileName = FilenameUtils.getName(originalName) + "_" + Instant.now() + "." + extension;
+            String fileName = Date.from(Instant.now()).getTime() + "." + extension;
 
             InputStream is = file.getInputStream();
             String contentType = file.getContentType();
