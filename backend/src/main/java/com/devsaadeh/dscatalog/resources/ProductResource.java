@@ -2,6 +2,7 @@ package com.devsaadeh.dscatalog.resources;
 
 
 import com.devsaadeh.dscatalog.dto.ProductDTO;
+import com.devsaadeh.dscatalog.dto.UriDTO;
 import com.devsaadeh.dscatalog.projections.ProductProjection;
 import com.devsaadeh.dscatalog.services.ProductService;
 import jakarta.validation.Valid;
@@ -11,8 +12,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.File;
 import java.net.URI;
 
 @RestController
@@ -46,6 +49,13 @@ public class ProductResource {
                 .buildAndExpand(dto.getId())
                 .toUri();
         return ResponseEntity.created(uri).body(dto);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping(value = "/image")
+    public ResponseEntity<UriDTO> uploadImage(@RequestParam("file") MultipartFile file) {
+        UriDTO dto = service.uploadFile(file);
+        return ResponseEntity.ok().body(dto);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

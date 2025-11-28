@@ -1,6 +1,7 @@
 package com.devsaadeh.dscatalog.services;
 
 import com.devsaadeh.dscatalog.dto.ProductDTO;
+import com.devsaadeh.dscatalog.dto.UriDTO;
 import com.devsaadeh.dscatalog.entities.Product;
 import com.devsaadeh.dscatalog.projections.ProductProjection;
 import com.devsaadeh.dscatalog.repositories.CategoryRepository;
@@ -17,7 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,6 +32,9 @@ public class ProductService {
 
     @Autowired
     CategoryRepository categoryRepository;
+
+    @Autowired
+    private S3Service s3Service;
 
     @Transactional(readOnly = true)
     public List<ProductDTO> findAll() {
@@ -113,4 +119,8 @@ public class ProductService {
         }
     }
 
+    public UriDTO uploadFile(MultipartFile file) {
+        URL url = s3Service.uploadFile(file);
+        return new UriDTO(url.toString());
+    }
 }
